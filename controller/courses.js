@@ -60,7 +60,6 @@ exports.addCourse = asyncHandler(async (req, res, next) => {
 
 exports.updateCourse = asyncHandler(async (req, res, next) => {
   let course = await Course.findById(req.params.id);
-  const bootcamp = await Bootcamp.findById(req.params.bootcampId);
 
   if (!course) {
     return next(
@@ -76,5 +75,22 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: course,
+  });
+});
+
+exports.deleteCourse = asyncHandler(async (req, res, next) => {
+  const course = await Course.findById(req.params.id);
+
+  if (!course) {
+    return next(
+      new ErrorResponse(`No course with the id of ${req.params.id}`, 404)
+    );
+  }
+
+  await Course.remove();
+
+  res.status(200).json({
+    success: true,
+    data: {},
   });
 });
