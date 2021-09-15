@@ -7,6 +7,9 @@ const cookieParser = require("cookie-parser");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const xss = require("xss-clean");
+const rateLimit = require("express-rate-limit");
+const hpp = require("hpp");
+const cors = require("cors");
 const errorHandler = require("./middleware/error");
 const connectDb = require("./config/db");
 
@@ -39,13 +42,26 @@ if (process.env.NODE_ENV === "development") {
 app.use(fileUplad());
 
 //Sanitize data
-app.use(mongoSanitize);
+app.use(mongoSanitize());
 
 //Set security headers
-app.use(helmet);
+app.use(helmet());
 
 //Prevent XSS attacks
-app.use(xss);
+app.use(xss());
+
+//Rate limiting
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, //10min
+  max: 100,
+});
+app.use(limiter);
+
+//Enable cors
+app.use(cors());
+
+//Prevent http param pollution
+app.use(hpp());
 
 //Set static folder
 app.use(express.static(path.join(__dirname, "public")));
